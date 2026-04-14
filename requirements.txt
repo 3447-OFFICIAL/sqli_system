@@ -17,3 +17,6 @@ plotly
 joblib
 python-multipart
 websockets
+transformers
+torch
+scipy

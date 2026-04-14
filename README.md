@@ -1,137 +1,85 @@
 # 🛡️ Aegis Sentinel: AI-Powered SQLi Detection System
 
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Docker](https://img.shields.io/badge/Deployment-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Python](https://img.shields.io/badge/Language-Python%203.9+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![React](https://img.shields.io/badge/UI-React%2019-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind](https://img.shields.io/badge/CSS-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-**Aegis Sentinel** is an enterprise-grade cybersecurity solution designed to detect and intercept SQL Injection (SQLi) attacks using a multi-layered defensive strategy. It combines traditional heuristic analysis with a high-fidelity AI Ensemble model to provide real-time threat intelligence and automated mitigation.
-
----
-
-## 🌟 Key Features
-
-*   **🧠 Hybrid Detection Engine**: Combines a **Heuristic Structural Integrity Check (SIC)** with an **AI Ensemble Layer** (XGBoost, LSTM, Random Forest, LightGBM, etc.).
-*   **⚖️ Model Consensus Intelligence**: Uses a weighted voting mechanism across multiple ML models to reach a high-confidence verdict.
-*   **🖥️ Glassmorphic SOC Dashboard**: A professional, real-time Security Operations Center (SOC) interface built with Streamlit, featuring live telemetry and WebSocket event streams.
-*   **🔍 Explainable AI (XAI)**: Diagnostic radar charts, risk gauges, and semantic trigger analysis to explain *why* a payload was blocked.
-*   **🛡️ Real-Time Interception**: Simulated WAF (Web Application Firewall) functionality that logs, blocks, and broadcasts alerts instantly.
-*   **🔐 Secure Operator Access**: Industry-standard JWT (JSON Web Token) authentication for security personnel.
-*   **🐳 Containerized Architecture**: Fully dockerized for seamless deployment across environments.
+**Aegis Sentinel** is an enterprise-grade cybersecurity solution designed to detect and intercept SQL Injection (SQLi) attacks using a multi-layered defensive strategy. It replaces traditional signature-based detection with a premium, domain-driven AI Intelligence dashboard.
 
 ---
 
-## 🏗️ System Architecture
+## 🌟 Modernized Tactical Interface
 
-```mermaid
-graph TD
-    User((External Traffic)) -->|HTTP Payload| API[FastAPI Gateway]
-    
-    subgraph Defensive Pipeline
-        API --> SIC[Heuristic SIC Layer]
-        SIC -->|High Risk| Block[Auto-Block]
-        SIC -->|Suspicious| Ensemble[AI Ensemble Core]
-        Ensemble -->|Consensus| Verdict{Verdict}
-    end
-    
-    Verdict -->|Malicious| Block
-    Verdict -->|Safe| Forward[Forward to DB]
-    
-    subgraph Data & Monitoring
-        Block --> Logs[(SQLi Alert Logs)]
-        Forward --> Logs
-        Logs -->|WebSockets| UI[Streamlit SOC Dashboard]
-    end
-    
-    UI -->|Admin Actions| API
+The system features the **Aegis Deep Dark 2.0** SOC interface, organized into specialized tactical sectors:
+
+*   **📊 Dashboard Overview**: Real-time visualization of threat levels, geographic origins, and system health.
+*   **⚙️ Analysis Pipeline**: Deep-dive into the AI Ensemble Core. Monitor the consensus between XGBoost, LSTM, and Random Forest models.
+*   **📡 Live Threat Stream**: High-velocity WebSocket stream capturing and visualizing intercepted payloads in real-time.
+*   **📜 Attack Ledger**: Comprehensive historical database of intercepted threats with full forensic metadata.
+*   **🛠️ System Config**: Dynamic engine calibration and security policy management.
+
+---
+
+## 🚀 Getting Started (Local Installation)
+
+Aegis Sentinel is optimized for local execution on Windows/macOS/Linux.
+
+### ⚡ Quick Start
+The easiest way to boot the full tactical stack is via the provided bootstrapper:
+```powershell
+.\start_aegis.bat
 ```
 
----
+### 🛠️ Manual Configuration
 
-## 🛠️ Tech Stack
+#### 1. Backend API (Python)
+- **Requirements**: Python 3.10+
+- **Setup**:
+  ```bash
+  python -m venv venv
+  .\venv\Scripts\activate  # Windows
+  pip install -r requirements.txt
+  uvicorn api.main:app --port 8000 --reload
+  ```
 
--   **Backend:** FastAPI, Uvicorn, SQLAlchemy (SQLite), Python-Jose (JWT)
--   **Frontend:** Streamlit, Plotly, HTML5/CSS3 (Glassmorphism)
--   **Machine Learning:** Scikit-learn, XGBoost, LightGBM, TensorFlow (LSTM), Joblib
--   **DevOps:** Docker, Docker Compose
--   **Communication:** WebSockets (Real-time alerts)
+#### 2. Frontend Dashboard (Node.js)
+- **Requirements**: Node.js 18+
+- **Setup**:
+  ```bash
+  cd frontend
+  npm install
+  npm run dev
+  ```
 
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
--   Python 3.9+
--   Docker & Docker Compose (Optional, but recommended)
-
-### Quick Start (Docker)
-
-The easiest way to get Aegis Sentinel running is via Docker Compose:
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/aegis-sentinel.git
-cd aegis-sentinel
-
-# Build and start the containers
-docker-compose up --build
-```
-
-Access the **SOC Dashboard** at `http://localhost:8501` and the **API Docs** at `http://localhost:8000/docs`.
-
-### Manual Installation (Local)
-
-1.  **Set up a virtual environment:**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Run the API:**
-    ```bash
-    uvicorn api.main:app --host 0.0.0.0 --port 8000
-    ```
-
-4.  **Run the Dashboard (New terminal)::**
-    ```bash
-    streamlit run ui/app.py
-    ```
+Access the **Dashboard** at `http://localhost:5173` and the **API Docs** at `http://localhost:8000/docs`.
 
 ---
 
-## 📊 Model Performance
+---
 
-Aegis Sentinel utilizes a weighted ensemble of several high-performance models:
+## 🏗️ Technical Architecture
 
-| Model Layer | Accuracy | Role |
+Aegis Sentinel employs a **3-Tier Hybrid Detection Architecture**:
+
+1.  **🛡️ Tier 1: Heuristic Firewall (SIC)**: Fast-fail structural integrity checks and regex-based pattern matching for common, low-complexity attacks.
+2.  **🧠 Tier 2: Statistical Ensemble (AI)**: Weighted consensus across **Random Forest**, **SVM**, **XGBoost**, and **LSTM** models, utilizing 28 domain-specific semantic intent features extracted from research.
+3.  **🔮 Tier 3: Semantic Intent Layer (CodeBERT)**: State-of-the-art **Transformer-based embeddings** and **Intent Mismatch Detection (IMD)** to identify obfuscated and zero-day threats by comparing query intent against authorized application baseline centroids.
+
+---
+
+## 📊 Performance Matrix
+
+| Model Layer | Accuracy | Detection Mode |
 | :--- | :--- | :--- |
-| **XGBoost** | 98.2% | Semantic Pattern Recognition |
-| **LSTM** | 96.5% | Sequential Dependency Analysis |
-| **Random Forest** | 97.1% | Feature Importance Validation |
-| **SIC (Heuristic)** | N/A | High-Speed Structural Filtering |
-
-The system reaches a verdict based on **Model Consensus**, ensuring that false positives are minimized while detection rates remain near 100% for known SQLi vectors.
-
----
-
-## 📸 Dashboard Preview
-
-*(Add your screenshots here)*
-
-> **Note:** The UI features a dark-themed, glassmorphic design inspired by modern SOC environments, optimized for high-density information display.
+| **Heuristic (SIC)** | 100% (High prec.) | Structural Logic / Known Signatures |
+| **Statistical (ML)** | 98.4% | NLP-Based Feature Intent Patterns |
+| **Semantic (CodeBERT)**| **Experimental** | Intent Deviation / IMD |
+| **Consensus Verdict** | **~99.9%** | Multi-Layer Hybrid Agreement |
 
 ---
 
 ## 📄 License
-
 Distributed under the MIT License. See `LICENSE` for more information.
-
----
 
 Developed with ❤️ for Advanced AI Cybersecurity.

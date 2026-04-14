@@ -10,6 +10,7 @@ except ImportError:
     HAS_TENSORFLOW = False
     
 from .preprocessing import extract_features_batch, clean_query, analyze_payload
+from .semantic import CodeBERTSemanticEncoder, IntentMismatchDetector
 
 MAX_LEN = 200
 
@@ -25,6 +26,11 @@ class SQLiEnsemblePredictor:
         self.dl_model = None
         self.tfidf = None
         self.tokenizer = None
+        
+        # Tier 1 Semantic Layer (CodeBERT + IMD)
+        self.semantic_encoder = None
+        self.imd = None
+        
         self._load_models()
         self.weights = {
             "logisticregression": 0.1,
@@ -50,6 +56,14 @@ class SQLiEnsemblePredictor:
             dl_path = os.path.join(self.model_dir, 'lstm_model.keras')
             if HAS_TENSORFLOW and os.path.exists(dl_path):
                 self.dl_model = tf.keras.models.load_model(dl_path)
+                
+            # Initialize Semantic Tier
+            try:
+                self.semantic_encoder = CodeBERTSemanticEncoder()
+                self.imd = IntentMismatchDetector()
+            except Exception as e:
+                print(f"Warning: Semantic layer failed to init: {e}")
+                
         except Exception as e:
             print(f"Warning: Could not load some models. Run training first. Error: {e}")
 
@@ -67,9 +81,24 @@ class SQLiEnsemblePredictor:
             seq = self.tokenizer.texts_to_sequences([cleaned])
             X_dl = pad_sequences(seq, maxlen=MAX_LEN)
         
+        # Tier 1: Semantic Intent Analysis
+        semantic_score = 0.5
+        semantic_anomaly = False
+        if self.semantic_encoder and self.imd:
+            embedding = self.semantic_encoder.get_embedding(cleaned)
+            semantic_score = self.imd.compute_anomaly_score(embedding)
+            semantic_anomaly = self.imd.is_anomaly(semantic_score)
+
         preds = {}
         weighted_sum = 0.0
         total_weight = 0.0
+        
+        # Integrate Semantic Signal into prediction
+        # If IMD identifies a mismatch, provide a baseline probability of 0.8
+        if semantic_anomaly:
+            preds["semantic_imd"] = 0.85
+            weighted_sum += 0.85 * 0.4  # High weight for semantic layer
+            total_weight += 0.4
         
         for name, model in self.models.items():
             if name == 'linearsvc':
@@ -95,11 +124,14 @@ class SQLiEnsemblePredictor:
         ensemble_prob = weighted_sum / total_weight if total_weight > 0 else 0.5
         is_sqli = int(ensemble_prob > 0.5)
         
-        # XAI Layer via heuristics
+        # XAI Layer via heuristics + Semantic feedback
         attack_type = "Safe / Standard Query"
         keywords = []
         if is_sqli:
             attack_type, keywords = analyze_payload(raw_query)
+            if semantic_anomaly:
+                attack_type = f"Intent Mismatch: {attack_type}"
+                keywords.append("Semantic Deviation")
         
         # Fallback if no models are loaded but the system is running
         if not preds and not HAS_TENSORFLOW:
@@ -109,9 +141,10 @@ class SQLiEnsemblePredictor:
             "prediction": is_sqli,
             "confidence": ensemble_prob if is_sqli else 1 - ensemble_prob,
             "individual_probabilities": preds,
-            "risk_level": "High" if ensemble_prob > 0.8 else "Medium" if ensemble_prob > 0.5 else "Low",
+            "risk_level": "Critical" if (ensemble_prob > 0.9 or (ensemble_prob > 0.7 and semantic_anomaly)) else "High" if ensemble_prob > 0.8 else "Medium" if ensemble_prob > 0.5 else "Low",
             "attack_type": attack_type,
-            "keywords": keywords
+            "keywords": keywords,
+            "semantic_anomaly": semantic_anomaly
         }
 
 if __name__ == "__main__":

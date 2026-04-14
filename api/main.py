@@ -23,7 +23,18 @@ request_history: Dict[str, float] = {}
 RATE_LIMIT_SECONDS = 1.0  # Allow 1 request per second per IP
 MAX_PAYLOAD_SIZE = 2048   # Reject queries > 2KB
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="Semantic-Aware SQL Injection Detection API")
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, specify specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 predictor = None
 sic = StructuralIntegrityCheck() # Single global instance for high performance

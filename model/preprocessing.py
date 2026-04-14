@@ -10,32 +10,61 @@ def clean_query(text: str) -> str:
     return sanitizer.normalize(text)
 
 def extract_features(text: str) -> list[float]:
-    """Extract handcrafted semantic and structural features from a SQL query."""
+    """
+    Extract 28 semantic intent features.
+    Each feature encodes a specific attack signal — not just character frequency.
+    Matches the research-grade logic from Miniproj4_SemanticSQLi.
+    """
+    import re
     t = str(text).lower()
     return [
-        len(t),                                        # query length
-        t.count("'"),                                  # single quote count
-        t.count('"'),                                  # double quote count
-        t.count(';'),                                  # semicolon count
-        t.count('='),                                  # equals sign count
-        t.count('--'),                                 # SQL comment --
-        t.count('#'),                                  # SQL comment #
-        t.count('/*'),                                 # block comment
-        int('union' in t),                             # UNION keyword
-        int('select' in t),                            # SELECT keyword
-        int('drop' in t),                              # DROP keyword
-        int('insert' in t),                            # INSERT keyword
-        int('delete' in t),                            # DELETE keyword
-        int('update' in t),                            # UPDATE keyword
-        int('exec' in t or 'execute' in t),            # EXEC keyword
-        int('sleep' in t or 'benchmark' in t),         # Time-based injection
-        int('or 1=1' in t or "or '1'='1'" in t),       # Tautology
-        int('and 1=1' in t or "and '1'='1'" in t),     # AND tautology
-        int('xp_' in t),                               # xp_ stored procedures
-        int('information_schema' in t),                # Schema enumeration
-        int('pg_sleep' in t),                          # PostgreSQL time-based
-        t.count('('),                                  # open parenthesis count
-        sum(1 for c in t if not c.isalnum() and c != ' '), # special char count
+        # ─── Structural / statistical ──────────────────────────────────────────
+        float(len(t)),                                                 # F01: total length
+        float(t.count("'")),                                           # F02: single quotes
+        float(t.count('"')),                                           # F03: double quotes
+        float(t.count(';')),                                           # F04: semicolons (stacked queries)
+        float(t.count('=')),                                           # F05: equals signs
+        float(sum(1 for c in t if not c.isalnum() and c != ' ')),      # F06: special char density
+
+        # ─── Comment injection ─────────────────────────────────────────────────
+        float('--' in t),                                              # F07: SQL line comment (--)
+        float('#' in t),                                               # F08: MySQL comment (#)
+        float('/*' in t),                                              # F09: block comment (/*)
+        float('/**/' in t),                                            # F10: inline bypass (/**/)
+
+        # ─── Time-based blind injection ────────────────────────────────────────
+        float(bool(re.search(r'sleep\s*\(|pg_sleep|waitfor', t))),       # F11: sleep / wait patterns
+        float(bool(re.search(r'benchmark\s*\(|dbms_pipe|randomblob', t))), # F12: benchmark / pipe
+
+        # ─── Union-based injection ─────────────────────────────────────────────
+        float('union' in t and 'select' in t),                         # F13: UNION + SELECT combo
+        float(bool(re.search(r'union\s+all\s+select', t))),            # F14: UNION ALL SELECT
+
+        # ─── Boolean / tautology injection ─────────────────────────────────────
+        float(bool(re.search(r'or\s+1\s*=\s*1|or\s+true|or\s+1\s*--', t))),   # F15: numeric tautology
+        float(bool(re.search(r"or\s+'[a-z0-9]'\s*=\s*'[a-z0-9]'", t))),        # F16: string tautology
+        float(bool(re.search(r'case\s+when|elt\s*\(', t))),               # F17: conditional blind
+
+        # ─── Error-based injection ─────────────────────────────────────────────
+        float('@@version' in t or '@@' in t),                          # F18: DB system variables
+        float(bool(re.search(r'load_file|utl_inaddr|extractvalue', t))),  # F19: error trigger functions
+
+        # ─── Schema enumeration ────────────────────────────────────────────────
+        float('information_schema' in t),                               # F20: ANSI schema tables
+        float('sysobjects' in t or 'syscolumns' in t or 'sysusers' in t), # F21: MSSQL system tables
+        float(bool(re.search(r'all_users|dba_tables', t))),               # F22: Oracle system tables
+
+        # ─── Encoding / obfuscation ────────────────────────────────────────────
+        float(t.count('%27') + t.count('%20')),                        # F23: URL-encoded quote/space
+        float(bool(re.search(r'char\s*\(|chr\s*\(', t))),                # F24: CHAR() obfuscation
+        float(bool(re.search(r'0x[0-9a-f]+', t))),                       # F25: hex-encoded payload
+
+        # ─── DDL danger ────────────────────────────────────────────────────────
+        float(bool(re.search(r'\b(drop|truncate|alter)\s+table', t))),   # F26: destructive DDL
+        float(bool(re.search(r'\b(insert|update|delete)\b', t))),         # F27: data manipulation
+
+        # ─── Auth bypass ───────────────────────────────────────────────────────
+        float(bool(re.search(r"'\\\s*(--|#)|admin\s*'", t))),              # F28: auth bypass pattern
     ]
 
 def extract_features_batch(queries: list[str]) -> np.ndarray:
