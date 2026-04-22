@@ -9,7 +9,7 @@ try:
 except ImportError:
     HAS_TENSORFLOW = False
     
-from .preprocessing import extract_features_batch, clean_query, analyze_payload
+from .preprocessing import extract_features_batch, clean_query, analyze_payload, extract_features
 from .semantic import CodeBERTSemanticEncoder, IntentMismatchDetector
 
 MAX_LEN = 200
@@ -49,23 +49,33 @@ class SQLiEnsemblePredictor:
             
             ml_model_names = ['logisticregression', 'decisiontree', 'randomforest', 'linearsvc', 'xgboost', 'lightgbm']
             for name in ml_model_names:
-                model_path = os.path.join(self.model_dir, f'{name}_model.joblib')
-                if os.path.exists(model_path):
-                    self.models[name] = joblib.load(model_path)
+                try:
+                    model_path = os.path.join(self.model_dir, f'{name}_model.joblib')
+                    if os.path.exists(model_path):
+                        self.models[name] = joblib.load(model_path)
+                except Exception as e:
+                    print(f"⚠️ [AEGIS] Failed to load ML model {name}: {e}")
             
-            dl_path = os.path.join(self.model_dir, 'lstm_model.keras')
-            if HAS_TENSORFLOW and os.path.exists(dl_path):
-                self.dl_model = tf.keras.models.load_model(dl_path)
+            # Load DL Model
+            try:
+                dl_path = os.path.join(self.model_dir, 'lstm_model.keras')
+                if HAS_TENSORFLOW and os.path.exists(dl_path):
+                    self.dl_model = tf.keras.models.load_model(dl_path)
+            except Exception as e:
+                print(f"⚠️ [AEGIS] Failed to load DL model (LSTM): {e}")
                 
             # Initialize Semantic Tier
             try:
                 self.semantic_encoder = CodeBERTSemanticEncoder()
                 self.imd = IntentMismatchDetector()
+                print("✅ [AEGIS] Semantic Layer: LOADED")
             except Exception as e:
-                print(f"Warning: Semantic layer failed to init: {e}")
+                print(f"⚠️ [AEGIS] Semantic Layer: FAILED ({e})")
                 
+            print(f"🎯 [AEGIS] Neural Stats: {len(self.models)} ML loaded, DL {'Ready' if self.dl_model else 'Offline'}")
+            
         except Exception as e:
-            print(f"Warning: Could not load some models. Run training first. Error: {e}")
+            print(f"❌ [AEGIS] ERROR: Critical failure during model load: {e}")
 
     def predict(self, raw_query: str):
         cleaned = clean_query(raw_query)
@@ -137,10 +147,30 @@ class SQLiEnsemblePredictor:
         if not preds and not HAS_TENSORFLOW:
             preds = {"Heuristic_Engine": 0.5}
 
+        # Generate Consensus Data for Radar Chart (Hyper-Sensitive)
+        features = extract_features(raw_query)
+        consensus_data = {
+            "semantic": float(semantic_score * 100),
+            "time": float(max(features[10], features[11]) * 100),
+            "union": float(max(features[12], features[13]) * 100),
+            "boolean": float(max(features[14], features[15], features[16], features[43] if len(features)>43 else 0) * 100),
+            "tautology": float(max(features[14], features[15]) * 100),
+            "obf": float(max(features[9], features[22], features[23], features[24]) * 100)
+        }
+        
+        # Binary Spike: If attack_type matches a category, force that axis to at least 80%
+        at = attack_type.lower()
+        if "boolean" in at: consensus_data["boolean"] = 95
+        if "union" in at: consensus_data["union"] = 95
+        if "time" in at: consensus_data["time"] = 95
+        if "obfuscation" in at: consensus_data["obf"] = 95
+        if "tautology" in at: consensus_data["tautology"] = 95
+
         return {
             "prediction": is_sqli,
-            "confidence": ensemble_prob if is_sqli else 1 - ensemble_prob,
+            "confidence": float(ensemble_prob if is_sqli else 1 - ensemble_prob),
             "individual_probabilities": preds,
+            "consensus_data": consensus_data,
             "risk_level": "Critical" if (ensemble_prob > 0.9 or (ensemble_prob > 0.7 and semantic_anomaly)) else "High" if ensemble_prob > 0.8 else "Medium" if ensemble_prob > 0.5 else "Low",
             "attack_type": attack_type,
             "keywords": keywords,

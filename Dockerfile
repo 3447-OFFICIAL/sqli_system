@@ -1,9 +1,9 @@
 # Stage 1: Build Frontend
 FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
-COPY sqli_system/frontend/package*.json ./
+COPY frontend-simple/package*.json ./
 RUN npm install
-COPY sqli_system/frontend/ .
+COPY frontend-simple/ .
 RUN npm run build
 
 # Stage 2: Production Backend
@@ -16,21 +16,23 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python dependencies
-COPY sqli_system/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend code
-COPY sqli_system/ /app/sqli_system/
+COPY . /app/
 
 # Copy built frontend assets to a directory served by FastAPI
-COPY --from=frontend-builder /app/frontend/dist /app/sqli_system/static
+# Create static dir if it doesn't exist
+RUN mkdir -p /app/static
+COPY --from=frontend-builder /app/frontend/dist /app/static
 
 # Expose port
 EXPOSE 8000
 
 # Environment variables
 ENV PYTHONPATH=/app
-ENV MODEL_DIR=/app/sqli_system/saved_models
+ENV MODEL_DIR=/app/saved_models
 
 # Start command
-CMD ["uvicorn", "sqli_system.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -34,7 +34,8 @@ def train_and_save_dl_model():
     
     print("Building LSTM model...")
     model = Sequential([
-        Embedding(input_dim=MAX_WORDS, output_dim=32, input_length=MAX_LEN),
+        tf.keras.layers.Input(shape=(MAX_LEN,)),
+        Embedding(input_dim=MAX_WORDS, output_dim=32),
         LSTM(64, return_sequences=True),
         Dropout(0.2),
         LSTM(32),

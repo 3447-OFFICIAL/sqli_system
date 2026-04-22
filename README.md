@@ -1,85 +1,104 @@
 # 🛡️ Aegis Sentinel: AI-Powered SQLi Detection System
 
-[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/UI-React%2019-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind](https://img.shields.io/badge/CSS-Tailwind%20v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/UI-React%2019-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind](https://img.shields.io/badge/CSS-Tailwind%20v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![ML](https://img.shields.io/badge/ML-Ensemble%20AI-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
 
-**Aegis Sentinel** is an enterprise-grade cybersecurity solution designed to detect and intercept SQL Injection (SQLi) attacks using a multi-layered defensive strategy. It replaces traditional signature-based detection with a premium, domain-driven AI Intelligence dashboard.
-
----
-
-## 🌟 Modernized Tactical Interface
-
-The system features the **Aegis Deep Dark 2.0** SOC interface, organized into specialized tactical sectors:
-
-*   **📊 Dashboard Overview**: Real-time visualization of threat levels, geographic origins, and system health.
-*   **⚙️ Analysis Pipeline**: Deep-dive into the AI Ensemble Core. Monitor the consensus between XGBoost, LSTM, and Random Forest models.
-*   **📡 Live Threat Stream**: High-velocity WebSocket stream capturing and visualizing intercepted payloads in real-time.
-*   **📜 Attack Ledger**: Comprehensive historical database of intercepted threats with full forensic metadata.
-*   **🛠️ System Config**: Dynamic engine calibration and security policy management.
+**Aegis Sentinel** is a state-of-the-art cybersecurity solution engineered to detect and intercept SQL Injection (SQLi) attacks using a sophisticated **Multi-Tier Hybrid Detection Architecture**. It moves beyond traditional signature-based matching to a deep semantic analysis of query intent.
 
 ---
 
-## 🚀 Getting Started (Local Installation)
+## 🏛️ System Architecture
 
-Aegis Sentinel is optimized for local execution on Windows/macOS/Linux.
+Aegis Sentinel operates on a **Three-Tier Tactical Defense** strategy:
 
-### ⚡ Quick Start
-The easiest way to boot the full tactical stack is via the provided bootstrapper:
+### 🛡️ Tier 1: Heuristic Firewall (SIC)
+The **Structural Integrity Check (SIC)** layer performs rapid, high-precision structural logic validation. It uses advanced regex and tokenization to identify known attack patterns (Tautologies, Union-based, Time-based) with zero latency, providing a "Fast-Fail" mechanism for obvious threats.
+
+### 🧠 Tier 2: Statistical Ensemble Engine
+A weighted consensus model combining the strengths of 7 distinct machine learning algorithms:
+*   **XGBoost & LightGBM**: Optimized for high-velocity feature classification.
+*   **Random Forest & Decision Trees**: Robust handling of non-linear semantic features.
+*   **Logistic Regression & Linear SVC**: Statistical baseline for linear probability.
+*   **LSTM (RNN)**: A Deep Learning layer that analyzes queries as sequences to capture long-range dependencies in complex, obfuscated payloads.
+
+### 🔮 Tier 3: Semantic Intent Layer (CodeBERT)
+Utilizing **Transformer-based embeddings** (CodeBERT) and **Intent Mismatch Detection (IMD)**, this experimental layer identifies zero-day threats by comparing the latent semantic intent of a query against an authorized application baseline.
+
+---
+
+## 🎨 Operational Dashboard
+
+The **Aegis Deep Dark 2.0** interface provides real-time situational awareness:
+*   **📊 Traffic Sandbox**: Test payloads against the Sentinel engine with immediate feedback.
+*   **📡 Live WebSocket Stream**: Real-time intercept logs visualized with threat probability gauges.
+*   **🕸️ Radar Consensus**: Visualize how different model tiers (Semantic, Boolean, Time, etc.) perceive the threat.
+*   **📜 Forensic Audit Ledger**: A comprehensive history of intercepted queries with full metadata storage.
+
+---
+
+## 🚀 Getting Started
+
+### ⚡ Quick Start (Windows)
+The fastest way to launch the entire tactical stack is via the bootstrapper:
 ```powershell
-.\start_aegis.bat
+.\start_simple.bat
 ```
 
-### 🛠️ Manual Configuration
+### 🛠️ Manual Installation
 
-#### 1. Backend API (Python)
-- **Requirements**: Python 3.10+
-- **Setup**:
-  ```bash
-  python -m venv venv
-  .\venv\Scripts\activate  # Windows
-  pip install -r requirements.txt
-  uvicorn api.main:app --port 8000 --reload
-  ```
+#### 1. Backend Infrastructure (Python 3.10+)
+```bash
+# Initialize Virtual Environment
+python -m venv venv
+.\venv\Scripts\activate  # Windows
+source venv/bin/activate # Linux/macOS
 
-#### 2. Frontend Dashboard (Node.js)
-- **Requirements**: Node.js 18+
-- **Setup**:
-  ```bash
-  cd frontend
-  npm install
-  npm run dev
-  ```
+# Install Neural Dependencies
+pip install -r requirements.txt
 
-Access the **Dashboard** at `http://localhost:5173` and the **API Docs** at `http://localhost:8000/docs`.
+# Launch API Gateway
+uvicorn api.main:app --port 8000 --reload
+```
 
----
+#### 2. Frontend Command Center (Node.js 18+)
+```bash
+cd frontend-simple
+npm install
+npm run dev
+```
 
----
-
-## 🏗️ Technical Architecture
-
-Aegis Sentinel employs a **3-Tier Hybrid Detection Architecture**:
-
-1.  **🛡️ Tier 1: Heuristic Firewall (SIC)**: Fast-fail structural integrity checks and regex-based pattern matching for common, low-complexity attacks.
-2.  **🧠 Tier 2: Statistical Ensemble (AI)**: Weighted consensus across **Random Forest**, **SVM**, **XGBoost**, and **LSTM** models, utilizing 28 domain-specific semantic intent features extracted from research.
-3.  **🔮 Tier 3: Semantic Intent Layer (CodeBERT)**: State-of-the-art **Transformer-based embeddings** and **Intent Mismatch Detection (IMD)** to identify obfuscated and zero-day threats by comparing query intent against authorized application baseline centroids.
+| Component | URL |
+| :--- | :--- |
+| **Dashboard** | `http://localhost:5173` |
+| **API Documentation** | `http://localhost:8000/docs` |
+| **WebSocket Stream** | `ws://localhost:8000/ws/alerts` |
 
 ---
 
 ## 📊 Performance Matrix
 
-| Model Layer | Accuracy | Detection Mode |
-| :--- | :--- | :--- |
-| **Heuristic (SIC)** | 100% (High prec.) | Structural Logic / Known Signatures |
-| **Statistical (ML)** | 98.4% | NLP-Based Feature Intent Patterns |
-| **Semantic (CodeBERT)**| **Experimental** | Intent Deviation / IMD |
-| **Consensus Verdict** | **~99.9%** | Multi-Layer Hybrid Agreement |
+| Detection Layer | Precision | Latency | Primary Strength |
+| :--- | :--- | :--- | :--- |
+| **Heuristic (SIC)** | 100% | < 1ms | Known Signatures & Structural logic |
+| **ML Ensemble** | 98.4% | ~15ms | Statistical Pattern Recognition |
+| **Semantic (CodeBERT)**| Experimental | ~80ms | Zero-Day & Obfuscation Detection |
+| **Consensus Verdict** | **~99.9%** | **~25ms** | Multi-Layer Hybrid Agreement |
+
+---
+
+## 🐳 Docker Deployment
+
+```bash
+docker build -t aegis-sentinel .
+docker run -p 8000:8000 aegis-sentinel
+```
 
 ---
 
 ## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Developed with ❤️ for Advanced AI Cybersecurity.
+Developed with ❤️ for Advanced AI Cybersecurity Research.

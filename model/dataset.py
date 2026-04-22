@@ -29,8 +29,8 @@ def load_data(filepath: str = None):
 
 def get_train_test_split(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42):
     """Split data into training and testing sets."""
-    X = df['cleaned_query'].values
-    y = df['Label'].values
+    X = df['cleaned_query'].to_numpy()
+    y = df['Label'].to_numpy()
     
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=test_size, random_state=random_state, stratify=y

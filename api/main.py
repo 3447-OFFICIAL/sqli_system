@@ -91,6 +91,7 @@ class QueryResponse(BaseModel):
     individual_probabilities: Dict[str, float]
     attack_type: str = "Normal"
     keywords: List[str] = []
+    consensus_data: Dict[str, float] = {}
 
 class Token(BaseModel):
     access_token: str
@@ -141,7 +142,15 @@ async def predict_query(req: QueryRequest, db: Session = Depends(get_db), curren
             "risk_level": "High (Auto-Block)",
             "individual_probabilities": {"SIC_Sensor": 1.0},
             "attack_type": f"Heuristic Block: {sic_result['reasons'][0]}",
-            "keywords": sic_result["reasons"]
+            "keywords": sic_result["reasons"],
+            "consensus_data": {
+                "semantic": 10.0,
+                "time": 90.0 if any("time" in r.lower() or "delay" in r.lower() for r in sic_result["reasons"]) else 10.0,
+                "union": 90.0 if any("union" in r.lower() for r in sic_result["reasons"]) else 10.0,
+                "boolean": 95.0 if any("unbalanced" in r.lower() or "tautology" in r.lower() for r in sic_result["reasons"]) else 10.0,
+                "tautology": 95.0 if any("tautology" in r.lower() for r in sic_result["reasons"]) else 10.0,
+                "obf": 90.0 if any("comment" in r.lower() or "chaining" in r.lower() for r in sic_result["reasons"]) else 10.0
+            }
         }
     else:
         # Proceed to AI Ensemble but pass reasons as insights if any
