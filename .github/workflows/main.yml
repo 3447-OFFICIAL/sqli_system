@@ -27,7 +27,7 @@ jobs:
         
     - name: Standup Services (Docker Compose)
       run: |
-        docker-compose up -d --build
+        docker compose up -d --build
         # Wait for the API to be ready
         sleep 10
         
